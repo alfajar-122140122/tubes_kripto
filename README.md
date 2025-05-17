@@ -1,117 +1,77 @@
-# QR Code Encryption and Steganography Using RSA and DCT
+# RSA + QR Code + DCT Steganography
 
-This project implements a layered security solution for QR codes using two security techniques: RSA encryption and DCT-based steganography. This dual-layer approach provides enhanced security for sensitive information shared via QR codes.
+This project implements a secure steganography system combining RSA encryption, QR Codes, and DCT-based image steganography.
 
-## Features
+## System Architecture
 
-- **RSA Encryption**: Generate RSA key pairs, encrypt data using public keys, and decrypt data using private keys
-- **QR Code Generation**: Convert encrypted data into QR codes
-- **DCT Steganography**: Hide QR codes within cover images using Discrete Cosine Transform technique
-- **Full Pipeline**: Complete end-to-end encryption, QR code generation, and steganographic hiding process
-- **Reverse Pipeline**: Extract QR codes from steganographic images and decrypt the data
+The main components of the system are:
+
+1. **Input Data**: User provides the text or information to be secured.
+2. **RSA Encryption**: Information is encrypted using the RSA algorithm with a public key.
+3. **QR Code Generation**: Encrypted data is encoded into a QR Code (Version 1, Error Correction Level L, 152-bit).
+4. **DCT-based Steganography**: The QR Code is embedded into a cover image using the Discrete Cosine Transform algorithm.
+5. **Extraction and Decryption**: The system can extract the hidden QR Code, decode it, and decrypt the message using the RSA private key.
 
 ## Requirements
 
-- Python 3.7+
-- Required Python packages:
-  - pycryptodome (for RSA encryption)
-  - qrcode (for QR code generation)
-  - pillow (for image processing)
-  - numpy (for matrix operations)
-  - opencv-python (for image processing)
-  - scipy (for DCT transformation)
+- Python 3.6+
+- Required libraries:
+  - numpy
+  - pillow
+  - pycryptodome
+  - qrcode
+  - opencv-python
+  - scikit-image
 
 ## Installation
 
-1. Clone or download this repository
-2. Install required packages:
-
 ```bash
-pip install pycryptodome qrcode pillow numpy opencv-python scipy scikit-image
+pip install numpy pillow pycryptodome qrcode opencv-python scikit-image
 ```
+
+For the GUI interface, the standard tkinter library is used (included with Python).
 
 ## Usage
 
-The application provides several commands for different operations:
+### Command-Line Interface
 
-### Generate RSA Key Pair
-
-```bash
-python main.py generate-keys --output-dir output --key-size 2048
-```
-
-This will generate a private key (`private_key.pem`) and a public key (`public_key.pem`) in the specified output directory.
-
-### Encrypt Data and Generate QR Code
+To encrypt and embed a message:
 
 ```bash
-python main.py encrypt --data "Your secret message" --public-key output/public_key.pem --qr-output encrypted_qrcode.png --output-dir output
+python main.py --mode encrypt --message "Your secret message" --cover path/to/cover_image.jpg --output path/to/output_image.png --alpha 0.1
 ```
 
-This encrypts the provided data using the specified public key and generates a QR code containing the encrypted data.
-
-### Hide QR Code in an Image
+To extract and decrypt a message:
 
 ```bash
-python main.py hide --qr-path output/encrypted_qrcode.png --cover-path cover_image.jpg --stego-output hidden_qrcode.png --output-dir output
+python main.py --mode decrypt --stego path/to/stego_image.png
 ```
 
-This hides the QR code within the cover image using DCT-based steganography.
+### GUI Interface
 
-### Extract QR Code from Steganographic Image
+For a more user-friendly experience, you can use the GUI:
 
 ```bash
-python main.py extract --stego-path output/hidden_qrcode.png --extracted-output extracted_qrcode.png --output-dir output
+python gui.py
 ```
 
-This extracts the hidden QR code from the steganographic image.
+## Modules
 
-### Decrypt Data from QR Code
+1. **rsa_qrcode.py**: Handles RSA encryption/decryption and QR code generation/reading.
+2. **dct_steganography.py**: Implements the DCT-based steganography for embedding and extraction.
+3. **robust_extraction.py**: Contains enhanced QR code extraction algorithms to improve resilience.
+4. **main.py**: Command-line interface for the system.
+5. **gui.py**: Graphical user interface for easier interaction.
 
-```bash
-python main.py decrypt --qr-path output/extracted_qrcode.png --private-key output/private_key.pem
-```
+## Key Features
 
-This reads the QR code and decrypts the data using the specified private key.
+- **Security**: RSA encryption ensures that even if the steganography is detected, the message remains secure.
+- **Robust QR Extraction**: Multiple preprocessing techniques are used to ensure successful extraction even if the stego image is slightly distorted.
+- **User-friendly Interface**: Simple GUI for easy use without requiring technical knowledge.
+- **Quality Assessment**: Measures PSNR and SSIM to evaluate the quality of steganography.
 
-### Execute Full Pipeline
+## Notes
 
-```bash
-python main.py pipeline --data "Your secret message" --cover-path cover_image.jpg --key-size 2048 --output-dir output
-```
-
-This executes the full pipeline: generating keys, encrypting data, creating a QR code, and hiding it in the cover image.
-
-### Execute Reverse Pipeline
-
-```bash
-python main.py reverse-pipeline --stego-path output/stego_image.png --private-key output/private_key.pem --output-dir output
-```
-
-This executes the reverse pipeline: extracting the QR code from the steganographic image and decrypting the data.
-
-## Project Structure
-
-- `main.py`: Main entry point for the application
-- `src/rsa_encryption.py`: RSA encryption module
-- `src/qr_code.py`: QR code generation and reading module
-- `src/dct_steganography.py`: DCT-based steganography module
-- `src/utils.py`: Utility functions
-
-## How It Works
-
-1. **RSA Encryption**: Uses asymmetric cryptography for secure data encryption
-2. **QR Code Generation**: Encrypted data is encoded into a QR code
-3. **DCT Steganography**: The QR code is hidden within a cover image using the Discrete Cosine Transform technique, which modifies frequency coefficients in a way that is resilient to common image processing operations while being imperceptible to the human eye
-
-## Limitations
-
-- RSA encryption has a maximum data size limit based on the key size
-- The quality of QR code extraction depends on the steganographic image quality
-- Large modifications to the steganographic image may corrupt the hidden QR code
-
-## Security Considerations
-
-- Keep the private key secure; anyone with access to it can decrypt the data
-- The security of the system depends on both the strength of the RSA encryption and the imperceptibility of the steganographic technique
-- This implementation is for educational purposes and may need additional security measures for production use
+- The default RSA key size is 2048 bits (can be changed in the GUI).
+- The embedding strength (alpha) controls the tradeoff between imperceptibility and robustness. Higher values make the hidden data more robust but potentially more visible.
+- QR Code uses Version 1 with Low (L) error correction level, which can store up to 152 bits of data.

@@ -1,8 +1,0 @@
-pycryptodome==3.22.0
-qrcode==8.2.0
-pillow==10.2.0
-numpy==1.26.4
-opencv-python==4.10.0.82
-scipy==1.13.1
-scikit-image==0.25.1
-requests==2.31.0
